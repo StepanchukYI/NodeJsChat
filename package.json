@@ -1,0 +1,14 @@
+{
+  "name": "socetIO",
+  "version": "1.0.0",
+  "description": "Simple Chat app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error:no test"
+  },
+  "author": "Stepanchuk Evgeniy",
+  "dependencies": {
+    "socket.io": "*",
+    "express": "*"
+  }
+}
