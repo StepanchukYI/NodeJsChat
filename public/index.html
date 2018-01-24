@@ -5,6 +5,7 @@
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <script src="/js/index.js"></script>
 </head>
 <body>
     <div class="container">
@@ -19,8 +20,11 @@
             </div>
         </div>
         <div id="messageArea" class="row">
+            <div id="userNameArea">
+
+            </div>
             <div class="col-md-4">
-                <div class="well">
+                <div class="well1">
                     <h3>Online</h3>
                     <ul class="listen-group" id="users"></ul>
                 </div>
@@ -36,64 +40,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        $(function () {
-            var socket = io.connect();
-            var $messageForm = $('#messageForm');
-            var $message = $('#message');
-            var $chat = $('#chat');
-            var $messageArea = $('#messageArea');
-            var $userFormArea = $('#userFormArea');
-            var $userForm = $('#userForm');
-            var $users = $('#users');
-            var $username = $('#username');
-
-            $messageForm.submit(function (e) {
-                e.preventDefault();
-                socket.emit('send message', $message.val());
-                $message.val('');
-            });
-
-            socket.on('new message', function (data) {
-                $chat.append('<div class="well"><strong>'+ data.user+': </strong>' + data.msg + '</div>');
-            });
-
-            $userForm.submit(function (e) {
-                e.preventDefault();
-                socket.emit('new user', $username.val(), function (data) {
-                    if(data){
-                        $userFormArea.hide();
-                        $messageArea.show();
-                    }
-                });
-                $username.val('');
-            });
-
-            socket.on('clear', function (data) {
-                var html = '';
-                $chat.html(html);
-            });
-
-            $messageArea.keydown(function (e) {
-
-                if (e.ctrlKey && e.keyCode == 13) {
-                    e.preventDefault();
-                    socket.emit('send message', $message.val());
-                    $message.val('');
-                }
-            });
-
-            socket.on('get user', function (data) {
-                var html = '';
-                for( i = 0; i < data.length; i++){
-                    console.log(data[i]);
-                    html += '<li class="list-group-item">' + data[i] + '</li>';
-                }
-                $users.html(html);
-            });
-
-        });
-    </script>
 </body>
 </html>

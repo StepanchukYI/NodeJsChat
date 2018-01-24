@@ -1,7 +1,70 @@
 
 body{
     margin-top: 30px;
+    background: #3df;
 }
 #messageArea{
     display: none;
 }
+
+.well1 {
+	margin-top: 10px;
+	width: 350px;
+	min-height: 104px;
+	max-height: 600px;
+	position: relative;
+	background: #555;
+	border-radius: 28px;
+	text-align: center;
+	overflow-y: scroll;
+	padding-bottom: 4px;
+}
+
+.well1 h3 {
+	color: red;
+	text-align: center;
+}
+
+.listen-group {
+	width: 315px;
+	padding-left: 10%;
+}
+
+.list-group-item {
+	margin-bottom: 1px;
+}
+
+#userNameArea {
+	margin-left: 85px;
+	width: 200px;
+	height: 35px;
+	background: #555;
+	text-align: center;
+	font-size: 25px;
+	border-radius: 7px;
+	color: white;
+	text-shadow: 0 2px 15px rgba(0,0,0,.9);
+	overflow-x: hidden;
+}
+
+textarea {
+	height: 80px;
+	width: 752px;
+	resize: none;
+}
+
+.chat {
+	height: 500px;
+	background: #555;
+	overflow-y: scroll;
+}
+
+.well {
+	margin: 10px;
+}
+
+li .list-group-item {
+	margin: 1px;
+}
+
+
