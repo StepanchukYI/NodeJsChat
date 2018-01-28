@@ -11,6 +11,7 @@
     "socket.io": "*",
     "express": "*",
     "handlebars": "*",
-    "morgan": "*"
+    "morgan": "*",
+    "axios": "*"
   }
 }
