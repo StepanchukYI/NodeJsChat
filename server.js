@@ -86,8 +86,22 @@ io.sockets.on('connection', function (socket) {
             if (data) {
                 var time = getDate();
                 messages.push({user: socket.userid, text: data, time: time});
-                console.log(messages);
                 io.sockets.emit('new message', {msg: data, user: socket.username, msgTime: time.time});
+                if (messages.length % 3 >= 1) {
+                    console.log('12312');
+                    axios.get('http://37.57.92.40/send', {msg: messages})
+                        .then(function (value) {
+                            for (i = 0; i < messages.length; i++) {
+                                messages.splice(messages.indexOf(messages[i]), 1);
+                            }
+                            for (j = 0; j < real_users.length; j++) {
+                                real_users[i].last_message = value.data.id;
+                            }
+                            messages = [];
+                        });
+                    console.log(messages);
+                    console.log(real_users);
+                }
             }
         }
 
@@ -123,7 +137,6 @@ io.sockets.on('connection', function (socket) {
     });
 
     function clear() {
-        message = [];
         io.sockets.emit('clear', user_names);
     }
 
