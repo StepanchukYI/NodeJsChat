@@ -33,7 +33,7 @@ function messageIncaps(message) {
         return {
             '"': '&quot;', '&': '&amp;', "'": '&#39;',
             '/': '&#47;',  '<': '&lt;',  '>': '&gt;',
-			'\n': '<br>',  '\r':'<br>', '\r\n': '<br>', 
+			'\n': '<br>',  '\r':'<br>', '\r\n': '<br>',
         }[a];
     });
 }
@@ -94,6 +94,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     function clear() {
+        message = [];
         io.sockets.emit('clear', users);
     }
 

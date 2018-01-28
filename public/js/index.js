@@ -17,19 +17,20 @@ $(function () {
     });
 
     socket.on('new message', function (data) {
-        $chat.append('<div class="well"><strong>'+ data.user+': </strong>' + data.msg + '</div>'); //</div><div style="right:10%;position: absolute;">'+data.msgTime +'</div>
+        $chat.append('<div class="well"><strong>' + data.user + ': </strong>' + data.msg + '</div>'); //</div><div style="right:10%;position: absolute;">'+data.msgTime +'</div>
+        $chat.animate({scrollTop: $chat[0].scrollHeight}, 500);
     });
 
     $userForm.submit(function (e) {
         e.preventDefault();
         socket.emit('new user', $username.val(), function (data) {
-            if(data){
+            if (data) {
                 $userFormArea.hide();
                 $messageArea.show();
                 console.log(data.myName);
                 $userNameArea.html(data.myName);
-                for(i = 0; i < data.msg.length; i++){
-                    $chat.append('<div class="well"><strong>'+ data.msg[i].user+': </strong>' + data.msg[i].text + '</div>');
+                for (i = 0; i < data.msg.length; i++) {
+                    $chat.append('<div class="well"><strong>' + data.msg[i].user + ': </strong>' + data.msg[i].text + '</div>');
                 }
             }
         });
@@ -52,7 +53,7 @@ $(function () {
 
     socket.on('get user', function (data) {
         var html = '';
-        for( i = 0; i < data.length; i++){
+        for (i = 0; i < data.length; i++) {
             console.log(data[i]);
             html += '<li class="list-group-item">' + data[i] + '</li>';
         }
