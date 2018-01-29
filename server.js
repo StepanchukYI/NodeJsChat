@@ -3,12 +3,11 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var fs = require('fs');
-const axios = require('axios');
+const request = require('request');
 
 user_names = [];
 real_users = [];
 
-connections = [];
 messages = [];
 
 app.use(express.static(__dirname + '/public'));
@@ -47,9 +46,7 @@ function getDate() {
 server.listen(process.env.PORT || 3000);
 console.log('Server started...');
 
-
 io.sockets.on('connection', function (socket) {
-    connections.push(socket);
 
     //Disconect
     socket.on('disconnect', function (data) {
@@ -76,7 +73,6 @@ io.sockets.on('connection', function (socket) {
 
             updateUsernames();
         }
-        connections.splice(connections.indexOf(socket), 1);
     });
 
     socket.on('send message', function (data) {
@@ -87,51 +83,49 @@ io.sockets.on('connection', function (socket) {
                 var time = getDate();
                 messages.push({user: socket.userid, text: data, time: time});
                 io.sockets.emit('new message', {msg: data, user: socket.username, msgTime: time.time});
-                if (messages.length % 3 >= 1) {
-                    console.log('12312');
-                    axios.get('http://37.57.92.40/send', {msg: messages})
-                        .then(function (value) {
-                            for (i = 0; i < messages.length; i++) {
-                                messages.splice(messages.indexOf(messages[i]), 1);
-                            }
-                            for (j = 0; j < real_users.length; j++) {
-                                real_users[i].last_message = value.data.id;
-                            }
-                            messages = [];
-                        });
-                    console.log(messages);
-                    console.log(real_users);
-                }
+                // if (messages.length % 3 >= 1) {
+                //     console.log('12312');
+                //     axios.get('http://37.57.92.40/send', {msg: messages})
+                //         .then(function (value) {
+                //             for (i = 0; i < messages.length; i++) {
+                //                 messages.splice(messages.indexOf(messages[i]), 1);
+                //             }
+                //             for (j = 0; j < real_users.length; j++) {
+                //                 real_users[i].last_message = value.data.id;
+                //             }
+                //         });
+                //     console.log(messages);
+                //     console.log(real_users);
+                // }
             }
         }
-
-
     });
 
     socket.on('new user', function (data, callback) {
         if (data) {
             var user = [];
-            axios.get('http://37.57.92.40/user/' + data)
-                .then(function (response) {
-                    flag = false;
-                    user = response.data;
-                    socket.username = user.name;
-                    socket.userid = user.id;
-                    for (i = 0; i < real_users.length; i++) {
-                        if (user.id == real_users[i].id) {
-                            flag = true;
-                            real_users[i].sockets.push(socket);
-                        }
-                    }
-                    if (!flag) {
-                        user.sockets = [];
-                        user.sockets.push(socket);
-                        real_users.push(user);
-                        user_names.push(socket.username);
-                    }
-
-                    callback({myName: socket.username, msg: messages});
-                    updateUsernames();
+            request.post('http://37.57.92.40/user', {id: data.id})
+                .on('response', function (response) {
+                    console.log(response);
+                    // flag = false;
+                    // user = response.data;
+                    // socket.username = user.name;
+                    // socket.userid = user.id;
+                    // for (i = 0; i < real_users.length; i++) {
+                    //     if (user.id == real_users[i].id) {
+                    //         flag = true;
+                    //         real_users[i].sockets.push(socket);
+                    //     }
+                    // }
+                    // if (!flag) {
+                    //     user.sockets = [];
+                    //     user.sockets.push(socket);
+                    //     real_users.push(user);
+                    //     user_names.push(socket.username);
+                    // }
+                    //
+                    // callback({myName: socket.username, msg: messages});
+                    // updateUsernames();
                 });
         }
     });
@@ -143,6 +137,4 @@ io.sockets.on('connection', function (socket) {
     function updateUsernames() {
         io.sockets.emit('get user', user_names);
     }
-
-
 });

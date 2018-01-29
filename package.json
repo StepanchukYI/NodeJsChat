@@ -10,8 +10,8 @@
   "dependencies": {
     "socket.io": "*",
     "express": "*",
-    "handlebars": "*",
-    "morgan": "*",
-    "axios": "*"
+    "axios": "*",
+    "request": "*",
+    "mysql": "*"
   }
 }
