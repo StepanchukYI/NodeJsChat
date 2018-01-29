@@ -104,29 +104,46 @@ io.sockets.on('connection', function (socket) {
     socket.on('new user', function (data, callback) {
         if (data) {
             var user = [];
-            request.post('http://37.57.92.40/user', {id: data.id})
-                .on('response', function (response) {
-                    console.log(response);
-                    // flag = false;
-                    // user = response.data;
-                    // socket.username = user.name;
-                    // socket.userid = user.id;
-                    // for (i = 0; i < real_users.length; i++) {
-                    //     if (user.id == real_users[i].id) {
-                    //         flag = true;
-                    //         real_users[i].sockets.push(socket);
-                    //     }
-                    // }
-                    // if (!flag) {
-                    //     user.sockets = [];
-                    //     user.sockets.push(socket);
-                    //     real_users.push(user);
-                    //     user_names.push(socket.username);
-                    // }
-                    //
-                    // callback({myName: socket.username, msg: messages});
-                    // updateUsernames();
-                });
+            console.log(data);
+            // request.post('http://37.57.92.40/user', {id: data.id})
+            //     .on('response', function (response,body) {
+            //         console.log(response.toJSON());
+            //         console.log(body);
+            //         flag = false;
+            //         user = response.data;
+            //         socket.username = user.name;
+            //         socket.userid = user.id;
+            //         for (i = 0; i < real_users.length; i++) {
+            //             if (user.id == real_users[i].id) {
+            //                 flag = true;
+            //                 real_users[i].sockets.push(socket);
+            //             }
+            //         }
+            //         if (!flag) {
+            //             user.sockets = [];
+            //             user.sockets.push(socket);
+            //             real_users.push(user);
+            //             user_names.push(socket.username);
+            //         }
+            //
+            //         callback({myName: socket.username, msg: messages});
+            //         updateUsernames();
+            //     });
+            request({
+                method: 'POST',
+                uri: 'http://37.57.92.40/user',
+                multipart: [
+                    {
+                        'content-type': 'application/json',
+                        body: JSON.stringify({id: data})
+                    }
+                ]
+            }, function (err, res, body) {
+                console.log('REQUEST RESULTS:', res.statusCode, body);
+            });
+            //     .on('response', function (response) {
+            //     console.log(response);
+            // });
         }
     });
 
