@@ -131,15 +131,35 @@ io.sockets.on('connection', function (socket) {
             //     });
             request({
                 method: 'POST',
-                uri: 'http://37.57.92.40/user',
-                multipart: [
-                    {
-                        'content-type': 'application/json',
-                        body: JSON.stringify({id: data})
-                    }
-                ]
+                uri: 'http://37.57.92.40/api/user',
+                formData: {id: data}
+                // headers: [
+                //     {
+                //         name: 'content-type',
+                //         value: 'application/x-www-form-urlencoded'
+                //     }
+                // ],
+                // postData: {
+                //     mimeType: 'application/x-www-form-urlencoded',
+                //     params: [
+                //         {
+                //             name: 'foo',
+                //             value: 'bar'
+                //         },
+                //         {
+                //             name: 'hello',
+                //             value: 'world'
+                //         }
+                //     ]
+                // }
+                // multipart: [
+                //     {
+                //         'content-type': 'application/json',
+                //         body: JSON.stringify({id: data})
+                //     }
+                // ]
             }, function (err, res, body) {
-                console.log('REQUEST RESULTS:', res.statusCode, body);
+                console.log('REQUEST RESULTS:',err , res.statusCode, body);
             });
             //     .on('response', function (response) {
             //     console.log(response);
