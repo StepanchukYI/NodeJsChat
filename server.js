@@ -4,7 +4,7 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var fs = require('fs');
 const request = require('request');
-
+const serverURL = 'http://127.0.0.1:8000';
 user_names = [];
 real_users = [];
 
@@ -33,9 +33,9 @@ function messageIncaps(message) {
 
 function getDate() {
     var currentdate = new Date();
-    var date = currentdate.getDate() + "/"
-        + (currentdate.getMonth() + 1) + "/"
-        + currentdate.getFullYear();
+    var date = currentdate.getFullYear() + ":"
+        + (currentdate.getMonth() + 1) + ":"
+        + currentdate.getDate();
     var time = currentdate.getHours() + ":"
         + currentdate.getMinutes() + ":"
         + currentdate.getSeconds();
@@ -83,20 +83,18 @@ io.sockets.on('connection', function (socket) {
                 var time = getDate();
                 messages.push({user: socket.userid, text: data, time: time});
                 io.sockets.emit('new message', {msg: data, user: socket.username, msgTime: time.time});
-                // if (messages.length % 3 >= 1) {
-                //     console.log('12312');
-                //     axios.get('http://37.57.92.40/send', {msg: messages})
-                //         .then(function (value) {
-                //             for (i = 0; i < messages.length; i++) {
-                //                 messages.splice(messages.indexOf(messages[i]), 1);
-                //             }
-                //             for (j = 0; j < real_users.length; j++) {
-                //                 real_users[i].last_message = value.data.id;
-                //             }
-                //         });
-                //     console.log(messages);
-                //     console.log(real_users);
-                // }
+                if (messages.length/10 >= 1) {
+                    request.post(serverURL +'/send', {json: {msg: messages}},
+                        function (error, response, body) {
+                        console.log(body);
+                            for (i = 0; i < messages.length; i++) {
+                                messages.splice(messages.indexOf(messages[i]), 1);
+                            }
+                            for (j = 0; j < real_users.length; j++) {
+                                real_users[j].last_message = body.id;
+                            }
+                        });
+                }
             }
         }
     });
@@ -104,66 +102,30 @@ io.sockets.on('connection', function (socket) {
     socket.on('new user', function (data, callback) {
         if (data) {
             var user = [];
-            console.log(data);
-            // request.post('http://37.57.92.40/user', {id: data.id})
-            //     .on('response', function (response,body) {
-            //         console.log(response.toJSON());
-            //         console.log(body);
-            //         flag = false;
-            //         user = response.data;
-            //         socket.username = user.name;
-            //         socket.userid = user.id;
-            //         for (i = 0; i < real_users.length; i++) {
-            //             if (user.id == real_users[i].id) {
-            //                 flag = true;
-            //                 real_users[i].sockets.push(socket);
-            //             }
-            //         }
-            //         if (!flag) {
-            //             user.sockets = [];
-            //             user.sockets.push(socket);
-            //             real_users.push(user);
-            //             user_names.push(socket.username);
-            //         }
-            //
-            //         callback({myName: socket.username, msg: messages});
-            //         updateUsernames();
-            //     });
-            request({
-                method: 'POST',
-                uri: 'http://37.57.92.40/api/user',
-                formData: {id: data}
-                // headers: [
-                //     {
-                //         name: 'content-type',
-                //         value: 'application/x-www-form-urlencoded'
-                //     }
-                // ],
-                // postData: {
-                //     mimeType: 'application/x-www-form-urlencoded',
-                //     params: [
-                //         {
-                //             name: 'foo',
-                //             value: 'bar'
-                //         },
-                //         {
-                //             name: 'hello',
-                //             value: 'world'
-                //         }
-                //     ]
-                // }
-                // multipart: [
-                //     {
-                //         'content-type': 'application/json',
-                //         body: JSON.stringify({id: data})
-                //     }
-                // ]
-            }, function (err, res, body) {
-                console.log('REQUEST RESULTS:',err , res.statusCode, body);
-            });
-            //     .on('response', function (response) {
-            //     console.log(response);
-            // });
+            request.post(serverURL +'/user', {json: {id: data}},
+                function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        flag = false;
+                        user = body;
+                        socket.username = user.name;
+                        socket.userid = user.id;
+                        for (i = 0; i < real_users.length; i++) {
+                            if (user.id == real_users[i].id) {
+                                flag = true;
+                                real_users[i].sockets.push(socket);
+                            }
+                        }
+                        if (!flag) {
+                            user.sockets = [];
+                            user.sockets.push(socket);
+                            real_users.push(user);
+                            user_names.push(socket.username);
+                        }
+
+                        callback({myName: socket.username, msg: messages});
+                        updateUsernames();
+                    }
+                });
         }
     });
 
