@@ -1,0 +1,6 @@
+{
+  "HOST": "127.0.0.1",
+  "HOST_PORT": 80,
+  "HOST_HTTP": "HTTP://",
+  "PORT" : 3000
+}
