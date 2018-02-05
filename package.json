@@ -4,7 +4,8 @@
   "description": "Simple Chat app",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error:no test"
+    "test": "echo \"Error:no test",
+    "start": "nodemon server.js"
   },
   "author": "Stepanchuk Evgeniy",
   "dependencies": {
@@ -12,5 +13,8 @@
     "express": "*",
     "request": "*",
     "ejs": "*"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.12"
   }
 }

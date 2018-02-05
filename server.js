@@ -5,7 +5,7 @@ var express = require('express')
     , server = require('http').createServer(app)
     , io = require('socket.io').listen(server)
     , request = require('request');
-const serverURL = config.HOST_HTTP + config.HOST + ':'+config.HOST_PORT+'/api';
+const serverURL = config.HOST_HTTP + config.HOST + ':' + config.HOST_PORT + '/api';
 
 server.listen(config.PORT || 3000);
 console.log('Server started...');
@@ -13,7 +13,7 @@ console.log('Server started...');
 
 user_names = [];
 real_users = [];
-
+var last_msg_id = 0;
 messages = [];
 
 app.use(express.static(__dirname + '/public'));
@@ -42,6 +42,7 @@ io.sockets.on('connection', function (socket) {
             }
         }
         if (flag) {
+
             request.post(serverURL + '/user/logout', {
                     json: {
                         user_id: real_users[id].id,
@@ -49,7 +50,7 @@ io.sockets.on('connection', function (socket) {
                     }
                 },
                 function (error, response, body) {
-                    console.log('User: ' + real_users[id] + ' disconnect.')
+                console.log(body);
                 });
 
             real_users.splice(real_users.indexOf(real_users[id]), 1);
@@ -66,20 +67,21 @@ io.sockets.on('connection', function (socket) {
         } else {
             if (data) {
                 var time = getDate();
+                data = messageIncaps(data);
                 messages.push({user: socket.userid, text: data, time: time});
                 io.sockets.emit('new message', {msg: data, user: socket.username, msgTime: time.time});
-                if (messages.length / 10 >= 1) {
-                    request.post(serverURL + '/send', {json: {msg: messages}},
-                        function (error, response, body) {
-                            console.log(body);
-                            for (i = 0; i < messages.length; i++) {
-                                messages.splice(messages.indexOf(messages[i]), 1);
-                            }
-                            for (j = 0; j < real_users.length; j++) {
-                                real_users[j].last_message = body.id;
-                            }
-                        });
-                }
+
+                request.post(serverURL + '/send', {json: {msg: messages}},
+                    function (error, response, body) {
+                        for (var i = 0; i < messages.length; i++) {
+                            messages.splice(messages.indexOf(messages[i]), 1);
+                        }
+                        for (var j = 0; j < real_users.length; j++) {
+                            real_users[j].last_message = body.id;
+                            last_msg_id = body.id;
+                        }
+                    });
+
             }
         }
     });
@@ -89,12 +91,14 @@ io.sockets.on('connection', function (socket) {
             var user = [];
             request.post(serverURL + '/user/login', {json: {id: data}},
                 function (error, response, body) {
-                    console.log(body);
                     if (!error && response.statusCode == 200) {
                         flag = false;
                         user = body.user;
                         socket.username = user.name;
                         socket.userid = user.id;
+                        if(body.last_id > last_msg_id){
+                            last_msg_id = body.last_id;
+                        }
                         for (i = 0; i < real_users.length; i++) {
                             if (user.id == real_users[i].id) {
                                 flag = true;
@@ -108,7 +112,7 @@ io.sockets.on('connection', function (socket) {
                             user_names.push(socket.username);
                         }
 
-                        callback({myName: socket.username, msg: body.message});
+                        callback({myName: socket.user, msg: body.message, last_message: user.last_message});
                         updateUsers();
                     }
                 });
