@@ -4,7 +4,10 @@ var express = require('express')
     , routes = require('./routes')
     , server = require('http').createServer(app)
     , io = require('socket.io').listen(server)
-    , request = require('request');
+    , request = require('request')
+    , dl  = require('delivery')
+    , fs  = require('fs');
+
 const serverURL = config.HOST_HTTP + config.HOST + ':' + config.HOST_PORT + '/api';
 
 server.listen(config.PORT || 3000);
@@ -22,8 +25,27 @@ app.get('/', routes.index);
 
 
 io.sockets.on('connection', function (socket) {
+    var delivery = dl.listen(socket);
 
-    //Disconect
+    delivery.on('receive.success',function(file){
+        var params = file.params;
+        delivery.send({
+            name: file.name,
+            path : file.buffer
+        });
+
+        fs.writeFile(file.name,file.buffer, function(err){
+            if(err){
+                console.log('File could not be saved.');
+            }else{
+                console.log('File saved.');
+            }
+        });
+    });
+
+
+
+
     socket.on('disconnect', function () {
         if (!socket.username) return;
         var flag = false;
@@ -71,7 +93,7 @@ io.sockets.on('connection', function (socket) {
                 messages.push({user: socket.userid, text: data, time: time});
                 io.sockets.emit('new message', {msg: data, user: socket.username, msgTime: time.time});
 
-                request.post(serverURL + '/send', {json: {msg: messages}},
+                request.post(serverURL + '/chat/send', {json: {msg: messages}},
                     function (error, response, body) {
                         for (var i = 0; i < messages.length; i++) {
                             messages.splice(messages.indexOf(messages[i]), 1);
@@ -94,6 +116,7 @@ io.sockets.on('connection', function (socket) {
                     if (!error && response.statusCode == 200) {
                         flag = false;
                         user = body.user;
+                        console.log(user);
                         socket.username = user.name;
                         socket.userid = user.id;
                         if(body.last_id > last_msg_id){

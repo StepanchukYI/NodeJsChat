@@ -12,7 +12,8 @@
     "socket.io": "*",
     "express": "*",
     "request": "*",
-    "ejs": "*"
+    "ejs": "*",
+    "delivery": "*"
   },
   "devDependencies": {
     "nodemon": "^1.14.12"
